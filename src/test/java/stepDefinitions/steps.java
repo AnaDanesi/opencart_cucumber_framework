@@ -20,9 +20,13 @@ import pageObjects.LoginPage;
 import pageObjects.MyAccountPage;
 import utilities.DataReader;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 public class steps {
@@ -40,13 +44,21 @@ public class steps {
 
 
     @Before
-    public void setup()    //Junit hook - executes once before starting
+    public void setup() throws IOException    //Junit hook - executes once before starting
     {
         //for logging
         logger= LogManager.getLogger(this.getClass());
-        //Reading config.properties (for browser)
-        rb= ResourceBundle.getBundle("config");
-        br=rb.getString("browser");
+        //Reading config.properties (for browser) - Approach 1
+        //rb= ResourceBundle.getBundle("config");
+        //br=rb.getString("browser");
+
+        //Reading config.properties (for browser) - Approach 2
+        File src = new File("/resources/config.properties");
+        FileInputStream fis = new FileInputStream(src);
+        Properties pro = new Properties();
+        pro.load(fis);
+        br = pro.getProperty("browser");
+
 
     }
 
@@ -132,7 +144,7 @@ public class steps {
     @Then("check User navigates to MyAccount Page by passing Email and Password with excel row {string}")
     public void check_user_navigates_to_my_account_page_by_passing_email_and_password_with_excel_data(String rows)
     {
-        datamap= DataReader.data(System.getProperty("user.dir")+"\\testData\\Opencart_LoginData.xlsx", "Sheet1");
+        datamap= DataReader.data(System.getProperty("user.dir")+"/testData/Opencart_LoginData.xlsx", "Sheet1");
 
         int index=Integer.parseInt(rows)-1;
         String email= datamap.get(index).get("username");
